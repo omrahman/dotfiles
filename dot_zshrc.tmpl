@@ -1,0 +1,41 @@
+# ~/.zshrc — managed by chezmoi (source: dot_zshrc.tmpl)
+# Edit the source with `chezmoi edit ~/.zshrc`, then `chezmoi apply`.
+
+# --- PATH -------------------------------------------------------------------
+export PATH="$HOME/.local/bin:$PATH"
+
+# --- Homebrew ---------------------------------------------------------------
+# Works on both Apple Silicon (/opt/homebrew) and Intel (/usr/local) Macs.
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+# --- fnm (Fast Node Manager) ------------------------------------------------
+FNM_PATH="$(brew --prefix 2>/dev/null)/opt/fnm/bin"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell zsh)"
+fi
+
+# --- History ----------------------------------------------------------------
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
+setopt SHARE_HISTORY          # share history across sessions
+setopt HIST_IGNORE_ALL_DUPS   # drop older duplicate entries
+setopt HIST_IGNORE_SPACE      # don't record commands starting with a space
+
+# --- Completion -------------------------------------------------------------
+autoload -Uz compinit && compinit
+
+# --- Aliases ----------------------------------------------------------------
+alias ll='ls -lah'
+alias gs='git status'
+alias gd='git diff'
+alias gl='git log --oneline --graph --decorate -20'
+
+# --- Local, untracked overrides ---------------------------------------------
+# Put machine-specific secrets/tweaks here; this file is NOT managed by chezmoi.
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

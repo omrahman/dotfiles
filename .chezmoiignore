@@ -1,0 +1,17 @@
+# Files here are NOT applied to the target ($HOME). This file is itself a
+# template, so OS conditionals work.
+
+# Repo housekeeping — never deploy these into $HOME.
+README.md
+LICENSE
+
+# Only deploy the PowerShell profile on Windows. Ignore the whole Documents
+# tree elsewhere so chezmoi doesn't touch ~/Documents' permissions on macOS.
+{{ if ne .chezmoi.os "windows" }}
+Documents
+{{ end }}
+
+# Only deploy the zsh config on macOS/Linux.
+{{ if eq .chezmoi.os "windows" }}
+.zshrc
+{{ end }}

@@ -1,0 +1,32 @@
+[user]
+    name = {{ .name | quote }}
+    email = {{ .email | quote }}
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = false
+
+[core]
+    # Normalize line endings: check out as-is, commit LF on Unix; on Windows
+    # convert CRLF -> LF on commit and back on checkout.
+    autocrlf = {{ if eq .chezmoi.os "windows" }}true{{ else }}input{{ end }}
+    editor = {{ if eq .chezmoi.os "windows" }}"code --wait"{{ else }}nano{{ end }}
+
+[push]
+    default = simple
+    autoSetupRemote = true
+
+[fetch]
+    prune = true
+
+[color]
+    ui = auto
+
+[alias]
+    co = checkout
+    br = branch
+    st = status
+    last = log -1 HEAD
+    lg = log --oneline --graph --decorate -20
