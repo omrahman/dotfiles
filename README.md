@@ -10,6 +10,7 @@ Targets **macOS (zsh)** and **Windows (PowerShell)** from a single source repo.
 | `dot_zshrc.tmpl`                                        | `~/.zshrc`                                       | macOS   |
 | `dot_gitconfig.tmpl`                                    | `~/.gitconfig`                                   | both    |
 | `Documents/PowerShell/Microsoft.PowerShell_profile.ps1` | `%USERPROFILE%\Documents\PowerShell\…profile.ps1` | Windows |
+| `run_once_install-homebrew-packages.sh.tmpl`            | _runs on `apply`_ (installs Homebrew + packages) | macOS   |
 
 chezmoi naming conventions: `dot_` → `.`, the `.tmpl` suffix marks a
 [template](https://www.chezmoi.io/user-guide/templating/). Which files land on
@@ -54,6 +55,17 @@ chezmoi apply             # write changes into $HOME
 chezmoi add ~/.foorc      # start managing a new file
 chezmoi cd                # drop into the source repo to commit & push
 ```
+
+## Scripts (`run_once_` / `run_onchange_`)
+
+chezmoi runs scripts during `apply`. `run_once_install-homebrew-packages.sh.tmpl`
+installs Homebrew (if missing) and a list of packages via `brew bundle`. It's
+templated to render empty on non-macOS machines, so it's a no-op on Windows.
+
+- Edit the inline Brewfile in the script to change what gets installed.
+- `run_once_` re-runs whenever the script's content changes (tracked by hash).
+- To run files but skip scripts: `chezmoi apply --exclude=scripts`.
+- To preview what a script would do: `chezmoi cat-config` / `chezmoi execute-template < <file>`.
 
 ## Machine-local overrides (untracked)
 

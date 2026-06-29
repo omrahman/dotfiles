@@ -1,0 +1,50 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+# Managed by chezmoi (source: run_once_install-homebrew-packages.sh.tmpl)
+#
+# chezmoi runs this automatically on `chezmoi apply`. Naming semantics:
+#   run_once_   -> runs once per unique script content (tracked by hash).
+#                  Edit the package list below and it re-runs on next apply,
+#                  because changing the content changes the hash.
+#   The {{ "{{ if eq .chezmoi.os \"darwin\" }}" }} guard makes the script render
+#   empty on non-macOS machines, and chezmoi skips empty scripts — so this is a
+#   no-op on Windows/Linux.
+#
+# Tip: if you'd rather it re-run *only* when the list changes (and never just
+# because it has never run on a machine), rename the source file to
+# `run_onchange_install-homebrew-packages.sh.tmpl`.
+
+set -euo pipefail
+
+# 1. Install Homebrew if it isn't already present.
+if ! command -v brew >/dev/null 2>&1; then
+  echo "==> Installing Homebrew..."
+  NONINTERACTIVE=1 /bin/bash -c \
+    "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# 2. Install packages declaratively from an inline Brewfile.
+#    Edit this list freely — `brew bundle` is idempotent (skips what's already
+#    installed) and the changed content makes run_once trigger again.
+echo "==> Installing Homebrew packages..."
+brew bundle --file=/dev/stdin <<'BREWFILE'
+# CLI tools
+brew "git"
+brew "fnm"          # fast Node version manager (already in your .zshrc)
+brew "neovim"
+brew "ripgrep"      # rg — fast grep
+brew "fd"           # fast find
+brew "fzf"          # fuzzy finder
+brew "jq"           # JSON processor
+brew "bat"          # cat with syntax highlighting
+brew "eza"          # modern ls
+brew "starship"     # cross-shell prompt
+
+# GUI apps (uncomment what you want)
+# cask "ghostty"
+# cask "visual-studio-code"
+BREWFILE
+
+echo "==> Homebrew packages up to date."
+{{ end -}}
