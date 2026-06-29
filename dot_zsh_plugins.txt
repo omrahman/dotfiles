@@ -1,0 +1,18 @@
+# Zsh plugins, loaded by antidote (see ~/.zshrc). Order matters — see comments.
+
+# Runs compinit at the right moment: after completion plugins extend fpath,
+# before widget-wrapping plugins load. Keep this first.
+mattmc3/ez-compinit
+
+# Extra completion definitions for many CLI tools (contributes to fpath).
+zsh-users/zsh-completions
+
+# Fuzzy tab-completion menu powered by fzf. Must load after compinit and
+# before the widget-wrapping plugins below.
+Aloxaf/fzf-tab
+
+# Fish-style suggestions from history as you type (accept with the right arrow).
+zsh-users/zsh-autosuggestions
+
+# Syntax highlighting for the command line. Keep LAST — it wraps ZLE widgets.
+zdharma-continuum/fast-syntax-highlighting

@@ -27,8 +27,17 @@ setopt SHARE_HISTORY          # share history across sessions
 setopt HIST_IGNORE_ALL_DUPS   # drop older duplicate entries
 setopt HIST_IGNORE_SPACE      # don't record commands starting with a space
 
-# --- Completion -------------------------------------------------------------
-autoload -Uz compinit && compinit
+# --- Plugins (antidote) -----------------------------------------------------
+# Loads the plugins in ~/.zsh_plugins.txt. ez-compinit (first in that file)
+# runs compinit at the right time for completions + fzf-tab.
+ANTIDOTE_DIR="$(brew --prefix 2>/dev/null)/opt/antidote/share/antidote"
+if [ -f "$ANTIDOTE_DIR/antidote.zsh" ]; then
+  source "$ANTIDOTE_DIR/antidote.zsh"
+  antidote load "${ZDOTDIR:-$HOME}/.zsh_plugins.txt"
+else
+  autoload -Uz compinit && compinit   # fallback if antidote isn't installed
+fi
+unset ANTIDOTE_DIR
 
 # --- Modern CLI tools (eza, bat) --------------------------------------------
 if command -v eza >/dev/null 2>&1; then
