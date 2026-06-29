@@ -10,6 +10,11 @@ return {
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
+      if not (vim.lsp.config and vim.lsp.enable) then
+        vim.notify("LSP config requires Neovim 0.11+", vim.log.levels.WARN)
+        return
+      end
+
       -- Install servers (add more names here, then to vim.lsp.enable below).
       require("mason").setup()
       require("mason-lspconfig").setup({

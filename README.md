@@ -26,11 +26,15 @@ which OS is controlled by [`.chezmoiignore`](.chezmoiignore).
 
 ```sh
 # 1. Install chezmoi
-brew install chezmoi
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+export PATH="$HOME/.local/bin:$PATH"
 
 # 2. Pull this repo and apply it (prompts once for your git name/email)
 chezmoi init --apply https://github.com/omrahman/dotfiles.git
 ```
+
+If Homebrew is already installed, `brew install chezmoi` is fine too. The
+dotfiles apply step installs Homebrew and the Brewfile packages when needed.
 
 ### Windows (PowerShell)
 
@@ -75,6 +79,7 @@ templated to render empty on non-macOS machines, so it's a no-op on Windows.
 
 `dot_config/nvim/` is a modular [lazy.nvim](https://github.com/folke/lazy.nvim)
 setup. lazy.nvim bootstraps itself on first launch, then installs everything.
+This config requires Neovim 0.11+ for the native LSP setup APIs.
 
 ```
 nvim/

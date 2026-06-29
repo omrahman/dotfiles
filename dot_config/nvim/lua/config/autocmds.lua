@@ -11,7 +11,20 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.api.nvim_create_autocmd("BufWritePre", {
   group = augroup,
   pattern = "*",
-  callback = function()
+  callback = function(args)
+    local buftype = vim.bo[args.buf].buftype
+    if buftype ~= "" then
+      return
+    end
+
+    local skip_filetypes = {
+      gitcommit = true,
+      markdown = true,
+    }
+    if skip_filetypes[vim.bo[args.buf].filetype] then
+      return
+    end
+
     local save = vim.fn.winsaveview()
     vim.cmd([[keeppatterns %s/\s\+$//e]])
     vim.fn.winrestview(save)
