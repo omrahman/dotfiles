@@ -4,9 +4,11 @@
 {{- $email := promptStringOnce . "email" "Email for git" -}}
 
 {{- /* On the machine where this repo lives at ~/repos/dotfiles, keep using it
-       as chezmoi's source dir. New machines fall back to the default location. */}}
+       as chezmoi's source dir. Require the git metadata too, so a stale empty
+       directory on a new machine does not override chezmoi's init clone. */}}
 {{- $repo := joinPath .chezmoi.homeDir "repos" "dotfiles" }}
-{{- if stat $repo }}
+{{- $repoGit := joinPath $repo ".git" }}
+{{- if stat $repoGit }}
 sourceDir = {{ $repo | quote }}
 {{- end }}
 

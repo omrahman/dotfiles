@@ -30,9 +30,11 @@
     st = status
     last = log -1 HEAD
     lg = log --oneline --graph --decorate -20
-{{ if lookPath "delta" }}
-# delta config is only written when the `delta` binary is on PATH, so git
-# never tries to page through a missing pager on a machine without it.
+{{ if or (eq .chezmoi.os "darwin") (lookPath "delta") }}
+# On macOS, delta is installed by the Homebrew bootstrap. `delta` is left as a
+# plain command there so the first bootstrap does not need a second apply before
+# git starts using it. Elsewhere, only write this block when delta already
+# exists on PATH.
 [core]
     pager = delta
 
