@@ -47,10 +47,18 @@ fi
 alias gs='git status'
 alias gd='git diff'
 alias gl='git log --oneline --graph --decorate -20'
+if command -v lazygit >/dev/null 2>&1; then
+  alias lg='lazygit'   # standalone TUI; `git lg` (the log alias) is separate
+fi
 
 # --- Prompt (starship) ------------------------------------------------------
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
+fi
+
+# --- zoxide (smarter cd: `z <dir>`, `zi` for interactive pick) --------------
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
 fi
 
 # --- Local, untracked overrides ---------------------------------------------

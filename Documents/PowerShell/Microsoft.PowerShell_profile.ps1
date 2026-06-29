@@ -39,6 +39,9 @@ Set-Alias which Get-Command
 function gs  { git status @args }
 function gd  { git diff @args }
 function gl  { git log --oneline --graph --decorate -20 @args }
+if (Get-Command lazygit -ErrorAction SilentlyContinue) {
+    function lg { lazygit @args }   # standalone TUI; `git lg` is separate
+}
 
 # --- Prompt -----------------------------------------------------------------
 if (Get-Command starship -ErrorAction SilentlyContinue) {
@@ -55,6 +58,11 @@ if (Get-Command starship -ErrorAction SilentlyContinue) {
         Write-Host $branch -NoNewline -ForegroundColor Yellow
         return " $('>' * ($nestedPromptLevel + 1)) "
     }
+}
+
+# --- zoxide (smarter cd: `z <dir>`, `zi` for interactive pick) --------------
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
 }
 
 # --- Local, untracked overrides ---------------------------------------------
