@@ -3,6 +3,11 @@
 #   %USERPROFILE%\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
 # Edit the source with `chezmoi edit $PROFILE`, then `chezmoi apply`.
 
+# --- XDG config home --------------------------------------------------------
+# Make Neovim (and other XDG-aware tools) read ~/.config on Windows, so the
+# same dot_config/nvim source works on macOS and Windows.
+$env:XDG_CONFIG_HOME = Join-Path $HOME ".config"
+
 # --- PSReadLine: better command-line editing & history ----------------------
 if (Get-Module -ListAvailable -Name PSReadLine) {
     Import-Module PSReadLine
