@@ -30,11 +30,28 @@ setopt HIST_IGNORE_SPACE      # don't record commands starting with a space
 # --- Completion -------------------------------------------------------------
 autoload -Uz compinit && compinit
 
+# --- Modern CLI tools (eza, bat) --------------------------------------------
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --group-directories-first'
+  alias ll='eza -lah --git --group-directories-first'
+  alias la='eza -a'
+  alias lt='eza --tree --level=2'
+else
+  alias ll='ls -lah'
+fi
+if command -v bat >/dev/null 2>&1; then
+  alias cat='bat'   # bat behaves like plain cat when output isn't a TTY (pipes)
+fi
+
 # --- Aliases ----------------------------------------------------------------
-alias ll='ls -lah'
 alias gs='git status'
 alias gd='git diff'
 alias gl='git log --oneline --graph --decorate -20'
+
+# --- Prompt (starship) ------------------------------------------------------
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
 
 # --- Local, untracked overrides ---------------------------------------------
 # Put machine-specific secrets/tweaks here; this file is NOT managed by chezmoi.

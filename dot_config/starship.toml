@@ -1,0 +1,5 @@
+# starship prompt config — managed by chezmoi
+# Full reference: https://starship.rs/config/
+
+# Don't print a blank line before each prompt.
+add_newline = false

@@ -17,24 +17,44 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
     Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
 }
 
-# --- Aliases ----------------------------------------------------------------
-Set-Alias ll Get-ChildItem
+# --- Modern CLI tools (eza, bat) --------------------------------------------
+# Aliases have higher precedence than functions, so drop the built-in alias
+# first, then define a function that forwards args to the new tool.
+if (Get-Command eza -ErrorAction SilentlyContinue) {
+    Remove-Item Alias:ls -Force -ErrorAction SilentlyContinue
+    function ls { eza --group-directories-first @args }
+    function ll { eza -lah --git --group-directories-first @args }
+    function la { eza -a @args }
+    function lt { eza --tree --level=2 @args }
+} else {
+    Set-Alias ll Get-ChildItem
+}
+if (Get-Command bat -ErrorAction SilentlyContinue) {
+    Remove-Item Alias:cat -Force -ErrorAction SilentlyContinue
+    function cat { bat @args }
+}
 Set-Alias which Get-Command
 
+# --- Git shortcuts ----------------------------------------------------------
 function gs  { git status @args }
 function gd  { git diff @args }
 function gl  { git log --oneline --graph --decorate -20 @args }
 
-# --- Prompt: show git branch ------------------------------------------------
-function prompt {
-    $branch = ""
-    try {
-        $b = git rev-parse --abbrev-ref HEAD 2>$null
-        if ($b) { $branch = " ($b)" }
-    } catch { }
-    Write-Host "$($executionContext.SessionState.Path.CurrentLocation)" -NoNewline -ForegroundColor Cyan
-    Write-Host $branch -NoNewline -ForegroundColor Yellow
-    return " $('>' * ($nestedPromptLevel + 1)) "
+# --- Prompt -----------------------------------------------------------------
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+    Invoke-Expression (&starship init powershell)
+} else {
+    # Fallback prompt: current path + git branch.
+    function prompt {
+        $branch = ""
+        try {
+            $b = git rev-parse --abbrev-ref HEAD 2>$null
+            if ($b) { $branch = " ($b)" }
+        } catch { }
+        Write-Host "$($executionContext.SessionState.Path.CurrentLocation)" -NoNewline -ForegroundColor Cyan
+        Write-Host $branch -NoNewline -ForegroundColor Yellow
+        return " $('>' * ($nestedPromptLevel + 1)) "
+    }
 }
 
 # --- Local, untracked overrides ---------------------------------------------
