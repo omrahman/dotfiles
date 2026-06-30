@@ -1,0 +1,73 @@
+{{ if eq .chezmoi.os "windows" -}}
+# Managed by chezmoi (source: run_once_install-winget-packages.ps1.tmpl)
+#
+# Windows counterpart to run_once_install-homebrew-packages.sh.tmpl. chezmoi runs
+# this automatically on `chezmoi apply` (it runs .ps1 scripts with powershell.exe
+# on Windows). Naming semantics:
+#   run_once_   -> runs once per unique script content (tracked by hash).
+#                  Edit the package list below and it re-runs on next apply,
+#                  because changing the content changes the hash.
+#   The {{ "{{ if eq .chezmoi.os \"windows\" }}" }} guard makes the script render
+#   empty on non-Windows machines, and chezmoi skips empty scripts -- so this is
+#   a no-op on macOS/Linux.
+#
+# Tip: if you'd rather it re-run *only* when the list changes (and never just
+# because it has never run on a machine), rename the source file to
+# `run_onchange_install-winget-packages.ps1.tmpl`.
+
+$ErrorActionPreference = "Stop"
+
+# 1. winget ships with App Installer on modern Windows. If it's missing, bail
+#    with a helpful message rather than failing cryptically.
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Error "winget not found. Install 'App Installer' from the Microsoft Store, then re-run 'chezmoi apply'."
+    exit 1
+}
+
+# 2. Install packages declaratively from the list below. Edit it freely -- the
+#    changed content makes run_once trigger again, and each install is skipped
+#    if the package is already present (so re-runs are cheap and idempotent).
+#
+#    IDs are winget package identifiers (find one with: winget search <name>).
+$packages = @(
+    "Git.Git"                    # git
+    "Schniz.fnm"                 # fast Node version manager
+    "Neovim.Neovim"              # neovim
+    "BurntSushi.ripgrep.MSVC"    # rg -- fast grep
+    "sharkdp.fd"                 # fast find
+    "junegunn.fzf"               # fuzzy finder
+    "jqlang.jq"                  # JSON processor
+    "sharkdp.bat"                # cat with syntax highlighting
+    "eza-community.eza"          # modern ls
+    "Starship.Starship"          # cross-shell prompt
+    "ajeetdsouza.zoxide"         # smarter cd -- `z` jumps to frequent dirs
+    "JesseDuffield.lazygit"      # terminal UI for git
+    "dandavison.delta"           # better git diffs (the `delta` binary)
+
+    # GUI apps (uncomment what you want)
+    # "Microsoft.VisualStudioCode"
+    # "Microsoft.WindowsTerminal"
+
+    # No Windows equivalents installed here:
+    #   antidote (zsh plugin manager) and tmux are macOS/Linux-only.
+)
+
+foreach ($id in $packages) {
+    # `winget list --id <id> -e` exits non-zero when the package is not present.
+    winget list --id $id -e --accept-source-agreements *> $null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "==> $id already installed, skipping."
+        continue
+    }
+
+    Write-Host "==> Installing $id..."
+    winget install --id $id -e --silent `
+        --accept-source-agreements --accept-package-agreements --disable-interactivity
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to install $id (winget exit $LASTEXITCODE)."
+        exit 1
+    }
+}
+
+Write-Host "==> winget packages up to date."
+{{ end -}}
