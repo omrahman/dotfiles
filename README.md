@@ -12,6 +12,7 @@ Targets **macOS (zsh)** and **Windows (PowerShell)** from a single source repo.
 | `dot_config/nvim/init.lua`                              | `~/.config/nvim/init.lua`                        | both    |
 | `Documents/PowerShell/Microsoft.PowerShell_profile.ps1` | `%USERPROFILE%\Documents\PowerShell\…profile.ps1` | Windows |
 | `run_once_install-homebrew-packages.sh.tmpl`            | _runs on `apply`_ (installs Homebrew + packages) | macOS   |
+| `run_once_install-winget-packages.ps1.tmpl`             | _runs on `apply`_ (installs packages via winget) | Windows |
 
 On Windows, the PowerShell profile sets `XDG_CONFIG_HOME=~/.config` so Neovim
 reads the same `~/.config/nvim/init.lua` as macOS — one config, both OSes.
@@ -66,11 +67,20 @@ chezmoi cd                # drop into the source repo to commit & push
 
 ## Scripts (`run_once_` / `run_onchange_`)
 
-chezmoi runs scripts during `apply`. `run_once_install-homebrew-packages.sh.tmpl`
-installs Homebrew (if missing) and a list of packages via `brew bundle`. It's
-templated to render empty on non-macOS machines, so it's a no-op on Windows.
+chezmoi runs scripts during `apply`. There's one bootstrap script per OS, each
+templated to render empty (a no-op) on the other OS:
 
-- Edit the inline Brewfile in the script to change what gets installed.
+- **macOS** — `run_once_install-homebrew-packages.sh.tmpl` installs Homebrew (if
+  missing) and a list of packages via `brew bundle`.
+- **Windows** — `run_once_install-winget-packages.ps1.tmpl` installs a parallel
+  list of packages via `winget`. Each package is skipped if already present
+  (checked with `winget list`), so re-runs are cheap and idempotent. chezmoi runs
+  `.ps1` scripts with `powershell.exe`; no interpreter config is needed.
+
+The two lists are kept roughly in sync. `antidote` (zsh) and `tmux` have no
+Windows entry; everything else maps to a winget package id.
+
+- Edit the inline package list in the relevant script to change what gets installed.
 - `run_once_` re-runs whenever the script's content changes (tracked by hash).
 - To run files but skip scripts: `chezmoi apply --exclude=scripts`.
 - To preview what a script would do: `chezmoi cat-config` / `chezmoi execute-template < <file>`.

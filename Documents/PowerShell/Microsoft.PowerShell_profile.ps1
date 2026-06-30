@@ -43,6 +43,13 @@ if (Get-Command lazygit -ErrorAction SilentlyContinue) {
     function lg { lazygit @args }   # standalone TUI; `git lg` is separate
 }
 
+# --- fnm (Fast Node Manager) ------------------------------------------------
+# Mirrors the `eval "$(fnm env)"` line in .zshrc. --use-on-cd switches Node
+# versions automatically when you cd into a dir with a .node-version/.nvmrc.
+if (Get-Command fnm -ErrorAction SilentlyContinue) {
+    fnm env --use-on-cd | Out-String | Invoke-Expression
+}
+
 # --- Prompt -----------------------------------------------------------------
 if (Get-Command starship -ErrorAction SilentlyContinue) {
     Invoke-Expression (&starship init powershell)
